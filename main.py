@@ -182,6 +182,7 @@ def get_history(limit: int = 50, offset: int = 0, db: Session = Depends(get_db))
     return [
         {
             "id": r.id,
+            "url": r.url,
             "product_title": r.product_title,
             "product_score": r.product_score,
             "verdict": r.verdict,
