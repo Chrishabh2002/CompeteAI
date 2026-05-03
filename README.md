@@ -9,6 +9,7 @@
 </p>
 
 <p align="center">
+  <a href="https://compete-ai-six.vercel.app/" target="_blank"><img src="https://img.shields.io/badge/🔴_LIVE_DEMO-compete--ai--six.vercel.app-00C853?style=for-the-badge&labelColor=000000" alt="Live Demo" /></a>
   <a href="#features"><img src="https://img.shields.io/badge/Features-12+-white?style=for-the-badge&labelColor=000000" alt="Features" /></a>
   <a href="#tech-stack"><img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" /></a>
   <a href="#tech-stack"><img src="https://img.shields.io/badge/React_19-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" /></a>
@@ -22,9 +23,7 @@
 
 ---
 
-<p align="center">
-  <img src="docs/screenshot.png" alt="CompeteAI Dashboard" width="90%" style="border-radius: 12px;" />
-</p>
+> **🚀 Try it now → [https://compete-ai-six.vercel.app](https://compete-ai-six.vercel.app/)**
 
 ---
 
@@ -179,9 +178,11 @@ Amazon URL → Scraper → Reviews + Metadata → LLM Analysis → Score Calcula
 
 | Model | Provider | Role |
 |-------|----------|------|
-| **Gemma 4 31B IT** | Google (via OpenRouter) | Primary — fastest |
-| **Auto Router** | OpenRouter | Fallback — automatic model selection |
-| **Hermes 3 405B** | NousResearch (via OpenRouter) | Final fallback — highest quality |
+| **Llama 4 Maverick** | Meta (via OpenRouter) | Primary — fastest free model |
+| **Gemma 3 27B** | Google (via OpenRouter) | Fallback 1 |
+| **Mistral Small 3.1** | Mistral (via OpenRouter) | Fallback 2 |
+| **Gemma 4 31B IT** | Google (via OpenRouter) | Fallback 3 |
+| **Auto Router** | OpenRouter | Final fallback — auto model selection |
 
 ### Infrastructure
 
@@ -245,7 +246,7 @@ CompeteAI/
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/YOUR_USERNAME/CompeteAI.git
+git clone https://github.com/Chrishabh2002/CompeteAI.git
 cd CompeteAI
 
 # 2. Create a virtual environment (recommended)
@@ -376,7 +377,7 @@ curl -X POST http://localhost:8000/analyze \
 
 1. **Push to GitHub**
    ```bash
-   git remote add origin https://github.com/YOUR_USERNAME/CompeteAI.git
+   git remote add origin https://github.com/Chrishabh2002/CompeteAI.git
    git branch -M main
    git push -u origin main
    ```
