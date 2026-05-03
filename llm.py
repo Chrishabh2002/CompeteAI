@@ -8,14 +8,16 @@ logger = logging.getLogger("competeai.llm")
 
 # Ordered fastest → slowest for speed
 MODELS = [
+    "meta-llama/llama-4-maverick:free",
+    "google/gemma-3-27b-it:free",
+    "mistralai/mistral-small-3.1-24b-instruct:free",
     "google/gemma-4-31b-it:free",
     "openrouter/auto",
-    "nousresearch/hermes-3-llama-3.1-405b:free",
 ]
 TEMPERATURE = 0.3
 MAX_ITEMS = 5
-MAX_RETRIES = 1
-RETRY_DELAY_SECS = 1
+MAX_RETRIES = 2
+RETRY_DELAY_SECS = 2
 MAX_REVIEW_CHARS = 200
 MAX_REVIEWS_TO_LLM = 8
 LLM_TIMEOUT = 60
