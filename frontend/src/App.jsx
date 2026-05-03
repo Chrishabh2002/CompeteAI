@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 
-const API = import.meta.env.VITE_API_URL || "/api";
+const API = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
 function App() {
   const [url, setUrl] = useState("");

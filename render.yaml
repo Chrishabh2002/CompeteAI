@@ -1,0 +1,24 @@
+# ══════════════════════════════════════════════════════════════
+#  CompeteAI — Render Blueprint (render.yaml)
+#  Deploys the FastAPI backend as a Web Service
+# ══════════════════════════════════════════════════════════════
+
+services:
+  - type: web
+    name: competeai-backend
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: OPENROUTER_API_KEY
+        sync: false  # Set manually in Render dashboard
+      - key: OPENROUTER_BASE_URL
+        value: https://openrouter.ai/api/v1
+      - key: DATABASE_URL
+        value: sqlite:///./competeai.db
+      - key: DEBUG
+        value: "false"
+      - key: CORS_ORIGINS
+        sync: false  # Set to your Vercel frontend URL
+      - key: PYTHON_VERSION
+        value: "3.11.0"

@@ -1,14 +1,18 @@
 """
 CompeteAI — Production FastAPI Application
 Full-featured backend with compare, search, re-analyze, export, and stats.
+Includes keep-alive self-ping to prevent Render free tier sleep.
 """
 
 import csv
 import io
 import logging
+import os
+import threading
 import time
 from contextlib import asynccontextmanager
 
+import requests as http_requests
 from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
@@ -28,27 +32,64 @@ logging.basicConfig(
 logger = logging.getLogger("competeai")
 
 
+# ══════════════════════════════════════════════════════════════
+#  KEEP-ALIVE — Prevents Render free tier from sleeping
+#  Pings /health every 14 minutes (Render sleeps after 15 min)
+# ══════════════════════════════════════════════════════════════
+
+KEEP_ALIVE_INTERVAL = 14 * 60  # 14 minutes in seconds
+_keep_alive_stop = threading.Event()
+
+
+def _keep_alive_worker():
+    """Background thread that pings the server's own /health endpoint."""
+    render_url = os.environ.get("RENDER_EXTERNAL_URL", "")
+    if not render_url:
+        logger.info("RENDER_EXTERNAL_URL not set — keep-alive disabled (local dev)")
+        return
+
+    health_url = f"{render_url}/health"
+    logger.info("Keep-alive started → pinging %s every %ds", health_url, KEEP_ALIVE_INTERVAL)
+
+    # Wait a bit for the server to fully start
+    _keep_alive_stop.wait(30)
+
+    while not _keep_alive_stop.is_set():
+        try:
+            resp = http_requests.get(health_url, timeout=10)
+            logger.info("Keep-alive ping → %s (status %d)", health_url, resp.status_code)
+        except Exception as exc:
+            logger.warning("Keep-alive ping failed: %s", exc)
+        _keep_alive_stop.wait(KEEP_ALIVE_INTERVAL)
+
+    logger.info("Keep-alive stopped")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("CompeteAI Backend Starting")
     init_db()
     logger.info("Database ready")
     logger.info("CORS: %s", settings.CORS_ORIGINS)
+
+    # Start keep-alive background thread
+    _keep_alive_stop.clear()
+    keep_alive_thread = threading.Thread(target=_keep_alive_worker, daemon=True, name="keep-alive")
+    keep_alive_thread.start()
+
     logger.info("CompeteAI Backend Ready (v3.0)")
     yield
+
+    # Stop keep-alive on shutdown
+    _keep_alive_stop.set()
     logger.info("CompeteAI Backend Shutting Down")
 
-
-import os as _os
-
-_on_vercel = bool(_os.environ.get("VERCEL") or _os.environ.get("VERCEL_ENV"))
 
 app = FastAPI(
     title="CompeteAI",
     description="AI-powered competitive product analysis",
     version="3.0.0",
     lifespan=lifespan,
-    root_path="/api" if _on_vercel else "",
 )
 
 app.add_middleware(

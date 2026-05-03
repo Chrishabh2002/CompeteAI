@@ -6,16 +6,9 @@ SQLite via SQLAlchemy. Auto-creates the DB file on first run.
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-import os
-
 from config import settings
 
 _db_url = settings.DATABASE_URL
-
-# On Vercel the project root is read-only; redirect SQLite to /tmp
-if os.environ.get("VERCEL") or os.environ.get("VERCEL_ENV"):
-    if _db_url.startswith("sqlite"):
-        _db_url = "sqlite:////tmp/competeai.db"
 
 _connect_args = {}
 if _db_url.startswith("sqlite"):
