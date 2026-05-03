@@ -1,8 +1,4 @@
-"""
-CompeteAI — SQLAlchemy ORM Models (Production)
-Extended with keywords, sentiment score, star rating, price,
-and buy recommendation for advanced analysis.
-"""
+"""SQLAlchemy models."""
 
 import json
 from datetime import datetime, timezone
@@ -13,7 +9,7 @@ from database import Base
 
 
 class AnalysisResult(Base):
-    """Stores a completed product analysis."""
+
 
     __tablename__ = "analysis_results"
 
@@ -37,7 +33,7 @@ class AnalysisResult(Base):
         DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
     )
 
-    # ── Convenience helpers ──────────────────────────────────
+    # helpers
 
     @property
     def positives(self) -> list[str]:
@@ -59,7 +55,7 @@ class AnalysisResult(Base):
             return []
 
     def to_dict(self) -> dict:
-        """Serialize to the API response shape."""
+
         data = {
             "id": self.id,
             "url": self.url,

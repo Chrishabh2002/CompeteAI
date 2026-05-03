@@ -1,8 +1,4 @@
-"""
-CompeteAI — Agent Pipeline (Production)
-Orchestrates scrape -> analyze -> score -> persist.
-Supports single analysis, comparison, and re-analysis.
-"""
+"""Analysis pipeline — scrape, analyze, score, save."""
 
 import json
 import logging

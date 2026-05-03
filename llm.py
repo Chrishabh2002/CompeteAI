@@ -1,8 +1,4 @@
-"""
-CompeteAI — LLM Review Analyzer (Production)
-Extracts structured insights, keywords, sentiment score,
-and buy recommendation using OpenRouter free models.
-"""
+"""LLM review analysis — structured insights via OpenRouter."""
 
 import json, logging, re, time
 from openai import OpenAI

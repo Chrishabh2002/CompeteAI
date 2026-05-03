@@ -1,7 +1,4 @@
-"""
-CompeteAI — Centralized Configuration (Production)
-Loads settings from environment variables / .env file.
-"""
+"""App settings from env vars."""
 
 import os
 from pathlib import Path
@@ -12,7 +9,7 @@ load_dotenv(_env_path)
 
 
 class Settings:
-    """Settings container — reads from env vars at import time."""
+
 
     # OpenRouter
     OPENROUTER_API_KEY: str = os.getenv("OPENROUTER_API_KEY", "")
@@ -26,7 +23,7 @@ class Settings:
     PORT: int = int(os.getenv("PORT", "8000"))
     DEBUG: bool = os.getenv("DEBUG", "false").lower() in ("true", "1", "yes")
 
-    # CORS — supports comma-separated origins in env
+    # CORS
     _raw_origins = [
         o.strip()
         for o in os.getenv(

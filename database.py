@@ -1,7 +1,4 @@
-"""
-CompeteAI — Database Engine & Session
-SQLite via SQLAlchemy. Auto-creates the DB file on first run.
-"""
+"""DB engine and session setup."""
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
@@ -24,12 +21,10 @@ SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 
 
 class Base(DeclarativeBase):
-    """Declarative base for all ORM models."""
     pass
 
 
 def get_db():
-    """FastAPI dependency — yields a session then closes it."""
     db = SessionLocal()
     try:
         yield db
@@ -38,5 +33,4 @@ def get_db():
 
 
 def init_db():
-    """Create all tables if they don't exist yet."""
     Base.metadata.create_all(bind=engine)

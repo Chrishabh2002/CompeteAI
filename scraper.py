@@ -1,8 +1,4 @@
-"""
-CompeteAI — Amazon Product Scraper (Production)
-Extracts product title, star rating, price, and up to 20 reviews.
-Includes User-Agent rotation, retry logic, and CAPTCHA detection.
-"""
+"""Amazon product scraper — pulls title, rating, price, reviews."""
 
 import random
 import logging

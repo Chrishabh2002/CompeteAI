@@ -1,4 +1,4 @@
-# ── Python ─────────────────────────────────────────────
+# python
 __pycache__/
 *.py[cod]
 *.egg-info/
@@ -6,19 +6,19 @@ dist/
 build/
 *.db
 
-# ── Environment ────────────────────────────────────────
+# env
 .env
 .env.local
 .env.production.local
 
-# ── Node ───────────────────────────────────────────────
+# node
 node_modules/
 frontend/dist/
 
-# ── Vercel ─────────────────────────────────────────────
+# vercel
 .vercel/
 
-# ── IDE ────────────────────────────────────────────────
+# ide
 .vscode/
 .idea/
 *.swp

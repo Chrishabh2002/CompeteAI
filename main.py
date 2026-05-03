@@ -1,8 +1,4 @@
-"""
-CompeteAI — Production FastAPI Application
-Full-featured backend with compare, search, re-analyze, export, and stats.
-Includes keep-alive self-ping to prevent Render free tier sleep.
-"""
+"""Main app entry point."""
 
 import csv
 import io
@@ -32,17 +28,13 @@ logging.basicConfig(
 logger = logging.getLogger("competeai")
 
 
-# ══════════════════════════════════════════════════════════════
-#  KEEP-ALIVE — Prevents Render free tier from sleeping
-#  Pings /health every 14 minutes (Render sleeps after 15 min)
-# ══════════════════════════════════════════════════════════════
+# Keep-alive pinger (prevents Render free tier sleep)
 
 KEEP_ALIVE_INTERVAL = 14 * 60  # 14 minutes in seconds
 _keep_alive_stop = threading.Event()
 
 
 def _keep_alive_worker():
-    """Background thread that pings the server's own /health endpoint."""
     render_url = os.environ.get("RENDER_EXTERNAL_URL", "")
     if not render_url:
         logger.info("RENDER_EXTERNAL_URL not set — keep-alive disabled (local dev)")
@@ -51,7 +43,7 @@ def _keep_alive_worker():
     health_url = f"{render_url}/health"
     logger.info("Keep-alive started → pinging %s every %ds", health_url, KEEP_ALIVE_INTERVAL)
 
-    # Wait a bit for the server to fully start
+    # let the server start up first
     _keep_alive_stop.wait(30)
 
     while not _keep_alive_stop.is_set():
@@ -72,7 +64,7 @@ async def lifespan(app: FastAPI):
     logger.info("Database ready")
     logger.info("CORS: %s", settings.CORS_ORIGINS)
 
-    # Start keep-alive background thread
+
     _keep_alive_stop.clear()
     keep_alive_thread = threading.Thread(target=_keep_alive_worker, daemon=True, name="keep-alive")
     keep_alive_thread.start()
@@ -80,7 +72,7 @@ async def lifespan(app: FastAPI):
     logger.info("CompeteAI Backend Ready (v3.0)")
     yield
 
-    # Stop keep-alive on shutdown
+
     _keep_alive_stop.set()
     logger.info("CompeteAI Backend Shutting Down")
 
@@ -116,9 +108,7 @@ async def global_exc_handler(request: Request, exc: Exception):
     return JSONResponse(status_code=500, content={"error": str(exc) if settings.DEBUG else "Internal error"})
 
 
-# ══════════════════════════════════════════════════════════════
-#  CORE ROUTES
-# ══════════════════════════════════════════════════════════════
+# --- routes ---
 
 @app.get("/")
 def root():
@@ -127,7 +117,7 @@ def root():
 
 @app.get("/health")
 def health_check(db: Session = Depends(get_db)):
-    """Production health check with DB verification."""
+
     from sqlalchemy import text as sa_text
     checks = {"database": "healthy", "api": "healthy"}
     try:
@@ -140,7 +130,7 @@ def health_check(db: Session = Depends(get_db)):
 
 @app.post("/analyze")
 def analyze(request: ProductRequest, db: Session = Depends(get_db)):
-    """Run full scrape -> analyze -> score pipeline."""
+
     logger.info("Analyze: %s", request.url)
     result = run_analysis(request.url, db)
     if "error" in result:
@@ -148,17 +138,11 @@ def analyze(request: ProductRequest, db: Session = Depends(get_db)):
     return result
 
 
-# ══════════════════════════════════════════════════════════════
-#  COMPARE — Head-to-head product comparison
-# ══════════════════════════════════════════════════════════════
+
 
 @app.post("/compare")
 def compare(request: CompareRequest, db: Session = Depends(get_db)):
-    """
-    Compare two Amazon products head-to-head.
-    Scrapes both, analyzes individually, then generates AI comparison.
-    Returns product_a, product_b analyses plus comparative verdict.
-    """
+
     logger.info("Compare: %s vs %s", request.url_a[:60], request.url_b[:60])
     result = run_comparison(request.url_a, request.url_b, db)
     if "error" in result:
@@ -166,13 +150,11 @@ def compare(request: CompareRequest, db: Session = Depends(get_db)):
     return result
 
 
-# ══════════════════════════════════════════════════════════════
-#  HISTORY & SEARCH
-# ══════════════════════════════════════════════════════════════
+# --- history & search ---
 
 @app.get("/history")
 def get_history(limit: int = 50, offset: int = 0, db: Session = Depends(get_db)):
-    """Paginated analysis history."""
+
     limit = min(limit, 100)
     rows = (
         db.query(AnalysisResult)
@@ -221,13 +203,11 @@ def search_history(
     ]
 
 
-# ══════════════════════════════════════════════════════════════
-#  SINGLE ANALYSIS CRUD
-# ══════════════════════════════════════════════════════════════
+
 
 @app.get("/analysis/{analysis_id}")
 def get_analysis(analysis_id: int, db: Session = Depends(get_db)):
-    """Fetch a single stored analysis by ID."""
+
     record = db.query(AnalysisResult).filter(AnalysisResult.id == analysis_id).first()
     if not record:
         raise HTTPException(status_code=404, detail="Analysis not found")
@@ -236,7 +216,7 @@ def get_analysis(analysis_id: int, db: Session = Depends(get_db)):
 
 @app.delete("/analysis/{analysis_id}")
 def delete_analysis(analysis_id: int, db: Session = Depends(get_db)):
-    """Delete a stored analysis by ID."""
+
     record = db.query(AnalysisResult).filter(AnalysisResult.id == analysis_id).first()
     if not record:
         raise HTTPException(status_code=404, detail="Analysis not found")
@@ -246,17 +226,11 @@ def delete_analysis(analysis_id: int, db: Session = Depends(get_db)):
     return {"status": "deleted", "id": analysis_id}
 
 
-# ══════════════════════════════════════════════════════════════
-#  RE-ANALYZE — Fresh analysis on existing URL
-# ══════════════════════════════════════════════════════════════
+
 
 @app.post("/reanalyze/{analysis_id}")
 def reanalyze(analysis_id: int, db: Session = Depends(get_db)):
-    """
-    Re-run analysis on a previously analyzed URL.
-    Fetches fresh reviews and generates new insights.
-    The old analysis is kept; a new record is created.
-    """
+
     old = db.query(AnalysisResult).filter(AnalysisResult.id == analysis_id).first()
     if not old:
         raise HTTPException(status_code=404, detail="Original analysis not found")
@@ -268,13 +242,11 @@ def reanalyze(analysis_id: int, db: Session = Depends(get_db)):
     return result
 
 
-# ══════════════════════════════════════════════════════════════
-#  EXPORT — Download analysis as CSV
-# ══════════════════════════════════════════════════════════════
+
 
 @app.get("/analysis/{analysis_id}/export")
 def export_analysis(analysis_id: int, db: Session = Depends(get_db)):
-    """Export a single analysis as a downloadable CSV file."""
+
     record = db.query(AnalysisResult).filter(AnalysisResult.id == analysis_id).first()
     if not record:
         raise HTTPException(status_code=404, detail="Analysis not found")
@@ -283,7 +255,7 @@ def export_analysis(analysis_id: int, db: Session = Depends(get_db)):
     output = io.StringIO()
     writer = csv.writer(output)
 
-    # Header
+
     writer.writerow(["Field", "Value"])
     writer.writerow(["Product", data["product_title"]])
     writer.writerow(["URL", data["url"]])
@@ -320,13 +292,11 @@ def export_analysis(analysis_id: int, db: Session = Depends(get_db)):
     )
 
 
-# ══════════════════════════════════════════════════════════════
-#  STATS — Aggregate analytics dashboard
-# ══════════════════════════════════════════════════════════════
+
 
 @app.get("/stats")
 def get_stats(db: Session = Depends(get_db)):
-    """Aggregate statistics across all analyses."""
+
     from sqlalchemy import func
 
     total = db.query(func.count(AnalysisResult.id)).scalar() or 0
@@ -344,7 +314,7 @@ def get_stats(db: Session = Depends(get_db)):
         .group_by(AnalysisResult.buy_recommendation).all()
     )
 
-    # Top 5 highest scored products
+
     top_products = (
         db.query(AnalysisResult.product_title, AnalysisResult.product_score)
         .order_by(AnalysisResult.product_score.desc())

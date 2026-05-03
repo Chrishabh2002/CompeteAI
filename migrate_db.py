@@ -1,4 +1,4 @@
-"""Migrate DB: add missing columns to analysis_results table."""
+"""Add missing columns to the DB if needed."""
 import sqlite3
 
 conn = sqlite3.connect("competeai.db")

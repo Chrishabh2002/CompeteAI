@@ -1,11 +1,9 @@
-"""
-CompeteAI — Pydantic Request / Response Schemas (Production)
-"""
+"""Request/response schemas."""
 
 from pydantic import BaseModel, Field
 
 
-# ── Requests ─────────────────────────────────────────────────
+
 
 class ProductRequest(BaseModel):
     url: str = Field(..., min_length=10, description="Amazon product URL")
@@ -16,7 +14,7 @@ class CompareRequest(BaseModel):
     url_b: str = Field(..., min_length=10, description="Second Amazon product URL")
 
 
-# ── Responses ────────────────────────────────────────────────
+
 
 class AnalysisResponse(BaseModel):
     id: int

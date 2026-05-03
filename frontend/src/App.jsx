@@ -108,7 +108,7 @@ function App() {
 
   return (
     <>
-      {/* ═══ NAVBAR ═══ */}
+      {/* NAVBAR */}
       <nav className="navbar">
         <div className="nav-logo">
           <div className="nav-logo-icon">AI</div>
@@ -138,7 +138,7 @@ function App() {
           {sidebarOpen ? "✕" : "☰"}
         </button>
 
-        {/* ═══ SIDEBAR ═══ */}
+        {/* SIDEBAR */}
         <aside className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
           <h2 className="sidebar-title">Analysis History</h2>
           <form className="sidebar-search" onSubmit={handleSearch}>
@@ -171,7 +171,7 @@ function App() {
           )}
         </aside>
 
-        {/* ═══ MAIN ═══ */}
+        {/* MAIN */}
         <main className="app">
           {/* Mode toggle */}
           <div className="mode-toggle">
@@ -216,10 +216,10 @@ function App() {
           {loading && <div className="loader"><div className="spinner" /><p>Scraping reviews &amp; running AI analysis</p></div>}
           {error && <div className="error-banner">{error}</div>}
 
-          {/* ═══ SINGLE RESULT ═══ */}
+          {/* SINGLE RESULT */}
           {result && <ResultCard r={result} time={analysisTime} sc={scoreClass} fmt={fmtDate} onRe={handleReanalyze} onEx={handleExport} />}
 
-          {/* ═══ COMPARE RESULT ═══ */}
+          {/* COMPARE RESULT */}
           {compareResult && (
             <CompareView data={compareResult} time={analysisTime} sc={scoreClass} />
           )}
@@ -230,9 +230,7 @@ function App() {
 }
 
 
-/* ═══════════════════════════════════════════════════
-   RESULT CARD COMPONENT
-   ═══════════════════════════════════════════════════ */
+/* RESULT CARD COMPONENT */
 function ResultCard({ r, time, sc, fmt, onRe, onEx }) {
   const cls = sc(r.product_score);
   const circumference = 2 * Math.PI * 58;
@@ -364,9 +362,7 @@ function ResultCard({ r, time, sc, fmt, onRe, onEx }) {
 }
 
 
-/* ═══════════════════════════════════════════════════
-   COMPARE VIEW — Advanced Head-to-Head
-   ═══════════════════════════════════════════════════ */
+/* COMPARE VIEW — Advanced Head-to-Head */
 function CompareView({ data, time, sc }) {
   const { product_a, product_b, comparison } = data;
   const circ = 2 * Math.PI * 44;
@@ -421,7 +417,7 @@ function CompareView({ data, time, sc }) {
         {time && <span className="product-meta-tag">⏱ {time}s</span>}
       </div>
 
-      {/* ═══ WINNER BANNER ═══ */}
+      {/* WINNER BANNER */}
       {comparison && !comparison.error && (
         <div className="cmp-winner-card">
           <div className="cmp-winner-trophy">🏆</div>
@@ -433,7 +429,7 @@ function CompareView({ data, time, sc }) {
         </div>
       )}
 
-      {/* ═══ SIDE-BY-SIDE SCORE CARDS ═══ */}
+      {/* SIDE-BY-SIDE SCORE CARDS */}
       <div className="cmp-scores-row">
         {[product_a, product_b].map((p, i) => p && (
           <div key={i} className={`cmp-score-card ${comparison?.winner === (i === 0 ? "A" : "B") ? "cmp-score-winner" : ""}`}>
@@ -458,10 +454,10 @@ function CompareView({ data, time, sc }) {
         ))}
       </div>
 
-      {/* ═══ VS DIVIDER ═══ */}
+      {/* VS DIVIDER */}
       <div className="cmp-vs-divider"><span>VS</span></div>
 
-      {/* ═══ CATEGORY COMPARISON BARS ═══ */}
+      {/* CATEGORY COMPARISON BARS */}
       {categories.length > 0 && (
         <div className="card">
           <div className="card-title">Category Breakdown</div>
@@ -496,7 +492,7 @@ function CompareView({ data, time, sc }) {
         </div>
       )}
 
-      {/* ═══ SIDE-BY-SIDE STRENGTHS ═══ */}
+      {/* SIDE-BY-SIDE STRENGTHS */}
       <div className="cmp-details-grid">
         {[product_a, product_b].map((p, i) => p && (
           <div key={i} className="card" style={{ margin: 0 }}>
@@ -532,7 +528,7 @@ function CompareView({ data, time, sc }) {
         ))}
       </div>
 
-      {/* ═══ FINAL VERDICTS ═══ */}
+      {/* FINAL VERDICTS */}
       {comparison && (comparison.verdict_a || comparison.verdict_b) && (
         <div className="cmp-verdicts-row">
           {[comparison.verdict_a, comparison.verdict_b].map((v, i) => v && (
